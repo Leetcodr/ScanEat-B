@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "DBMS mini project competition ",
   "scripts": {
-    "start": "parcel src/index.html",
+    "start": "node server.js",
     "build": "parcel build src/index.html",
     "test": "jest"
   },
