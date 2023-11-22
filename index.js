@@ -30,7 +30,7 @@ app.listen(port, (req, res) => {
 app.get("/home/:id", (req, res) => {
   // res.send("hello");
   let table_id = req.params;
-  let display = "Select * from MenuItems";
+  let display = "Select * from menuitems";
   // console.log("get request recieved");
   try {
     connection.query(display, (err, result) => {
@@ -43,7 +43,7 @@ app.get("/home/:id", (req, res) => {
 })
 //<-----------------------------------------------------Function ----------------------------------------------------->
 const categoryfunc = (category, res) => {
-  let displaycategory = `SELECT * FROM MenuItems WHERE Subcategory = '${category}' OR Maincategory = '${category}' AND Availability = 1`;
+  let displaycategory = `SELECT * FROM menuitems WHERE Subcategory = '${category}' OR Maincategory = '${category}' AND Availability = 1`;
   connection.query(displaycategory, (err, result) => {
     if (err) {
       console.error("An error occurred while retrieving data", err);
@@ -63,7 +63,7 @@ app.get("/home/:id/:category", (req, res) => {
 //-----------------------------------------------------only veg----------------------------------------------------->
 
 app.get("/veg", (req, res) => {
-  let veg = "SELECT * FROM MenuItems WHERE Vegonly = 1 AND Availability=1";
+  let veg = "SELECT * FROM menuitems WHERE Vegonly = 1 AND Availability=1";
 
   connection.query(veg, (err, result) => {
     try {
@@ -91,8 +91,8 @@ app.get("/home/:id/abc/cart", (req, res) => {
       MI.src
 
     FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
     WHERE O.table_id =${id} AND( O.status_id !=4 AND O.status_id!=5);
   `;
   // console.log(id);
@@ -117,7 +117,7 @@ app.post("/home/:id", (req, res) => {
     res.send("");
   }
   else {
-    const displaysearch = "SELECT * FROM MenuItems WHERE name LIKE ?";
+    const displaysearch = "SELECT * FROM menuitems WHERE name LIKE ?";
     // console.log("search request recieved");
     try {
       connection.query(displaysearch, `%${search}%`, (err, result) => {
@@ -138,7 +138,7 @@ app.post("/home/:id/abc/placeOrder", (req, res) => {
   // console.log(obj.items);
   // console.log(obj.special_instruction);
   connection.query(
-    `SELECT table_id FROM Tables WHERE table_number = ?`,
+    `SELECT table_id FROM tables WHERE table_number = ?`,
     id,
     (err, result) => {
       if (err) {
@@ -158,7 +158,7 @@ app.post("/home/:id/abc/placeOrder", (req, res) => {
           const order_id = orderResult.insertId; // Get the inserted order_id
 
           const insertItemQuery =
-            'INSERT INTO OrderItems (order_id, item_id, quantity, special_instructions) VALUES (?, ?, ?, ?)'; // Add closing parenthesis
+            'INSERT INTO orderitems (order_id, item_id, quantity, special_instructions) VALUES (?, ?, ?, ?)'; // Add closing parenthesis
 
           obj.items.forEach((item) => {
             connection.query(
@@ -233,10 +233,10 @@ app.get('/managers', (req, res) => {
                   OI.quantity,
                   OS.status_name AS status
                 FROM Orders AS O 
-                JOIN Tables AS T ON O.table_id = T.table_id
-                JOIN OrderItems AS OI ON O.order_id = OI.order_id
-                JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-                JOIN OrderStatuses AS OS ON O.status_id = OS.status_id
+                JOIN tables AS T ON O.table_id = T.table_id
+                JOIN orderitems AS OI ON O.order_id = OI.order_id
+                JOIN menuitems AS MI ON OI.item_id = MI.item_id
+                JOIN orderstatuses AS OS ON O.status_id = OS.status_id
                 WHERE O.status_id !=5`;
 
   // console.log("manager get request");
@@ -299,7 +299,7 @@ app.post("/manager/add", (req, res) => {
   const { itemData } = req.body;
 
   const addquery = `INSERT INTO 
-  MenuItems (item_id, name, description, price, Maincategory, src, Subcategory, Recommended, Availability, Vegonly)
+  menuitems (item_id, name, description, price, Maincategory, src, Subcategory, Recommended, Availability, Vegonly)
    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
   console.log(itemData.item_id, itemData.name, itemData.description, itemData.price, itemData.Maincategory, itemData.src, itemData.Subcategory, itemData.Recommended, itemData.vegonly);
@@ -321,7 +321,7 @@ app.post("/manager/add", (req, res) => {
 //<-----------------------------------------------------Delete Item--------------------------------------------------------->
 app.delete("/home/manager/items", (req, res) => {
   let { id } = req.body;
-  const delquery = `DELETE FROM MenuItems WHERE item_id=${id}`;
+  const delquery = `DELETE FROM menuitems WHERE item_id=${id}`;
 
   connection.query(delquery, (err, result) => {
     if (err) {
@@ -367,9 +367,9 @@ app.get("/home/:id/:category/bill", (req, res) => {
   //   OI.quantity,
   //   (MI.price * OI.quantity) AS total_price
   // FROM Orders AS O
-  // JOIN OrderItems AS OI ON O.order_id = OI.order_id
-  // JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-  // WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
+  // JOIN orderitems AS OI ON O.order_id = OI.order_id
+  // JOIN menuitems AS MI ON OI.item_id = MI.item_id
+  // WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
   // AND O.status_id = 6;
   // `
 
@@ -398,9 +398,9 @@ app.post("/home/:id/:category/bill", (req, res) => {
   OI.quantity,
   (MI.price * OI.quantity) AS total_price
 FROM Orders AS O
-JOIN OrderItems AS OI ON O.order_id = OI.order_id
-JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
+JOIN orderitems AS OI ON O.order_id = OI.order_id
+JOIN menuitems AS MI ON OI.item_id = MI.item_id
+WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
 AND O.status_id = 6;
 `
   // console.log(id);
@@ -436,9 +436,9 @@ app.post("/manager/bill", (req, res) => {
   OI.quantity,
   (MI.price * OI.quantity) AS total_price
 FROM Orders AS O
-JOIN OrderItems AS OI ON O.order_id = OI.order_id
-JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
+JOIN orderitems AS OI ON O.order_id = OI.order_id
+JOIN menuitems AS MI ON OI.item_id = MI.item_id
+WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
 AND O.status_id = 3;
 `
   console.log(id);
@@ -461,13 +461,13 @@ AND O.status_id = 3;
 //   OI.quantity,
 //   -- OI.special_instructions,
 //   O.table_id AS table_number
-// FROM OrderItems AS OI
+// FROM orderitems AS OI
 // JOIN Orders AS O ON OI.order_id = O.order_id
-// JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+// JOIN menuitems AS MI ON OI.item_id = MI.item_id
 // WHERE O.status_id=2;
 // `;
 //   const instquery = `SELECT OI.order_id, OI.special_instructions
-// FROM OrderItems AS OI
+// FROM orderitems AS OI
 // JOIN Orders AS O ON OI.order_id = O.order_id
 // WHERE O.status_id = 2
 // GROUP BY O.order_id, OI.special_instructions;
@@ -508,9 +508,9 @@ app.get("/manager/bill/:id", (req, res) => {
   OI.quantity,
   (MI.price * OI.quantity) AS total_price
 FROM Orders AS O
-JOIN OrderItems AS OI ON O.order_id = OI.order_id
-JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
+JOIN orderitems AS OI ON O.order_id = OI.order_id
+JOIN menuitems AS MI ON OI.item_id = MI.item_id
+WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
 AND O.status_id = 3;
 `
   // console.log(id);
@@ -534,9 +534,9 @@ app.get("/chef", (req, res) => {
   OI.quantity,
   OI.special_instructions,
   O.table_id AS table_number
-FROM OrderItems AS OI
+FROM orderitems AS OI
 JOIN Orders AS O ON OI.order_id = O.order_id
-JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+JOIN menuitems AS MI ON OI.item_id = MI.item_id
 WHERE O.status_id=2;
 `;
 
@@ -671,9 +671,9 @@ app.post("/manager/analytics", (req, res) => {
         DATE(O.order_time) AS sale_date,
         SUM(MI.price * OI.quantity) AS daily_sales
     FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-    JOIN Tables AS T ON O.table_id = T.table_id
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
+    JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     GROUP BY sale_date
     ORDER BY sale_date;
@@ -687,10 +687,10 @@ app.post("/manager/analytics", (req, res) => {
         MI.src,
         MI.price,
         SUM(OI.quantity) AS total_quantity_sold
-    FROM OrderItems AS OI
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+    FROM orderitems AS OI
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
     JOIN Orders AS O ON O.order_id = OI.order_id
-    JOIN Tables AS T ON O.table_id = T.table_id
+    JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     GROUP BY MI.item_id
     ORDER BY total_quantity_sold DESC
@@ -704,9 +704,9 @@ app.post("/manager/analytics", (req, res) => {
         T.table_number,
         SUM(MI.price * OI.quantity) AS total_order_sales
     FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-    JOIN Tables AS T ON O.table_id = T.table_id
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
+    JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     GROUP BY O.order_id
     ORDER BY total_order_sales DESC
@@ -717,9 +717,9 @@ app.post("/manager/analytics", (req, res) => {
                 T.table_number,
                 SUM(MI.price * OI.quantity) AS total_order_sales
                 FROM Orders AS O
-                JOIN OrderItems AS OI ON O.order_id = OI.order_id
-                JOIN Tables AS T ON O.table_id = T.table_id
-                JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+                JOIN orderitems AS OI ON O.order_id = OI.order_id
+                JOIN tables AS T ON O.table_id = T.table_id
+                JOIN menuitems AS MI ON OI.item_id = MI.item_id
                 GROUP BY T.table_number
                 ORDER BY total_order_sales DESC
                 LIMIT 5 `;
@@ -767,9 +767,9 @@ app.post("/manager/analytics", (req, res) => {
       DATE(O.order_time) AS sale_date,
       SUM(MI.price * OI.quantity) AS daily_sales
   FROM Orders AS O
-  JOIN OrderItems AS OI ON O.order_id = OI.order_id
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN orderitems AS OI ON O.order_id = OI.order_id
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE DATE(O.order_time) = CURDATE() 
   GROUP BY sale_date
@@ -785,10 +785,10 @@ SELECT
     MI.src,
     MI.price,     
     SUM(OI.quantity) AS total_quantity_sold
-FROM OrderItems AS OI
-JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+FROM orderitems AS OI
+JOIN menuitems AS MI ON OI.item_id = MI.item_id
 JOIN Orders AS O ON O.order_id = OI.order_id
-JOIN Tables AS T ON O.table_id = T.table_id
+JOIN tables AS T ON O.table_id = T.table_id
 WHERE DATE(O.order_time) = CURDATE()  
 GROUP BY MI.item_id
 ORDER BY total_quantity_sold DESC
@@ -803,9 +803,9 @@ LIMIT 10;
       T.table_number,
       SUM(MI.price * OI.quantity) AS total_order_sales
   FROM Orders AS O
-  JOIN OrderItems AS OI ON O.order_id = OI.order_id
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN orderitems AS OI ON O.order_id = OI.order_id
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE DATE(O.order_time) = CURDATE() 
   GROUP BY O.order_id
@@ -817,9 +817,9 @@ LIMIT 10;
               T.table_number,
               SUM(MI.price * OI.quantity) AS total_order_sales
               FROM Orders AS O
-              JOIN OrderItems AS OI ON O.order_id = OI.order_id
-              JOIN Tables AS T ON O.table_id = T.table_id
-              JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+              JOIN orderitems AS OI ON O.order_id = OI.order_id
+              JOIN tables AS T ON O.table_id = T.table_id
+              JOIN menuitems AS MI ON OI.item_id = MI.item_id
               WHERE DATE(O.order_time) = CURDATE() 
               GROUP BY T.table_number
               ORDER BY total_order_sales DESC
@@ -831,8 +831,8 @@ LIMIT 10;
                   COUNT(OI.order_id) AS total_orders,
                   SUM(MI.price * OI.quantity) AS total_price
                   FROM Orders AS O
-                  JOIN OrderItems AS OI ON O.order_id = OI.order_id
-                  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+                  JOIN orderitems AS OI ON O.order_id = OI.order_id
+                  JOIN menuitems AS MI ON OI.item_id = MI.item_id
                   WHERE DATE(O.order_time) = CURDATE()  
                   GROUP BY order_date;
                 `
@@ -914,9 +914,9 @@ LIMIT 10;
       DATE(O.order_time) AS sale_date,
       SUM(MI.price * OI.quantity) AS daily_sales
   FROM Orders AS O
-  JOIN OrderItems AS OI ON O.order_id = OI.order_id
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN orderitems AS OI ON O.order_id = OI.order_id
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND 
   WEEK(O.order_time) = WEEK(CURDATE() )
@@ -932,10 +932,10 @@ LIMIT 10;
       MI.src,
       MI.price,       
       SUM(OI.quantity) AS total_quantity_sold
-  FROM OrderItems AS OI
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+  FROM orderitems AS OI
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN Orders AS O ON O.order_id = OI.order_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
     WEEK(O.order_time) = WEEK(CURDATE()) 
@@ -951,9 +951,9 @@ LIMIT 10;
       T.table_number,
       SUM(MI.price * OI.quantity) AS total_order_sales
   FROM Orders AS O
-  JOIN OrderItems AS OI ON O.order_id = OI.order_id
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN orderitems AS OI ON O.order_id = OI.order_id
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
    WEEK(O.order_time) = WEEK(CURDATE()) 
@@ -966,9 +966,9 @@ LIMIT 10;
               T.table_number,
               SUM(MI.price * OI.quantity) AS total_order_sales
               FROM Orders AS O
-              JOIN OrderItems AS OI ON O.order_id = OI.order_id
-              JOIN Tables AS T ON O.table_id = T.table_id
-              JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+              JOIN orderitems AS OI ON O.order_id = OI.order_id
+              JOIN tables AS T ON O.table_id = T.table_id
+              JOIN menuitems AS MI ON OI.item_id = MI.item_id
               WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
                WEEK(O.order_time) = WEEK(CURDATE()) 
               GROUP BY T.table_number
@@ -981,8 +981,8 @@ LIMIT 10;
         COUNT(OI.order_id) AS total_orders,
         SUM(MI.price * OI.quantity) AS total_price
         FROM Orders AS O
-        JOIN OrderItems AS OI ON O.order_id = OI.order_id
-        JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+        JOIN orderitems AS OI ON O.order_id = OI.order_id
+        JOIN menuitems AS MI ON OI.item_id = MI.item_id
         WHERE WEEK(O.order_time) = WEEK(CURDATE())  
         GROUP BY order_week;
       `;
@@ -1065,9 +1065,9 @@ LIMIT 10;
       DATE(O.order_time) AS sale_date,
       SUM(MI.price * OI.quantity) AS daily_sales
   FROM Orders AS O
-  JOIN OrderItems AS OI ON O.order_id = OI.order_id
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN orderitems AS OI ON O.order_id = OI.order_id
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
   MONTH(O.order_time) = MONTH(CURDATE()) 
@@ -1083,10 +1083,10 @@ LIMIT 10;
       MI.src,
       MI.price,        
       SUM(OI.quantity) AS total_quantity_sold
-  FROM OrderItems AS OI
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+  FROM orderitems AS OI
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN Orders AS O ON O.order_id = OI.order_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
   MONTH(O.order_time) = MONTH(CURDATE()) 
@@ -1102,9 +1102,9 @@ LIMIT 10;
       T.table_number,
       SUM(MI.price * OI.quantity) AS total_order_sales
   FROM Orders AS O
-  JOIN OrderItems AS OI ON O.order_id = OI.order_id
-  JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-  JOIN Tables AS T ON O.table_id = T.table_id
+  JOIN orderitems AS OI ON O.order_id = OI.order_id
+  JOIN menuitems AS MI ON OI.item_id = MI.item_id
+  JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
   MONTH(O.order_time) =MONTH(CURDATE()) 
@@ -1117,9 +1117,9 @@ LIMIT 10;
               T.table_number,
               SUM(MI.price * OI.quantity) AS total_order_sales
               FROM Orders AS O
-              JOIN OrderItems AS OI ON O.order_id = OI.order_id
-              JOIN Tables AS T ON O.table_id = T.table_id
-              JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+              JOIN orderitems AS OI ON O.order_id = OI.order_id
+              JOIN tables AS T ON O.table_id = T.table_id
+              JOIN menuitems AS MI ON OI.item_id = MI.item_id
               WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
               MONTH(O.order_time) = MONTH(CURDATE()) 
               GROUP BY T.table_number
@@ -1132,8 +1132,8 @@ LIMIT 10;
                         COUNT(OI.order_id) AS total_orders,
                         SUM(MI.price * OI.quantity) AS total_price
                         FROM Orders AS O
-                        JOIN OrderItems AS OI ON O.order_id = OI.order_id
-                        JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+                        JOIN orderitems AS OI ON O.order_id = OI.order_id
+                        JOIN menuitems AS MI ON OI.item_id = MI.item_id
                         WHERE MONTH(O.order_time) =MONTH(CURDATE())  
                        GROUP BY order_month
                         `;
@@ -1216,9 +1216,9 @@ LIMIT 10;
         DATE(O.order_time) AS sale_date,
         SUM(MI.price * OI.quantity) AS daily_sales
     FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-    JOIN Tables AS T ON O.table_id = T.table_id
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
+    JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     WHERE YEAR(O.order_time)=YEAR(CURDATE())
     GROUP BY sale_date
@@ -1233,10 +1233,10 @@ LIMIT 10;
         MI.src,
         MI.price,         
         SUM(OI.quantity) AS total_quantity_sold
-    FROM OrderItems AS OI
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+    FROM orderitems AS OI
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
     JOIN Orders AS O ON O.order_id = OI.order_id
-    JOIN Tables AS T ON O.table_id = T.table_id
+    JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     WHERE YEAR(O.order_time)=YEAR(CURDATE())
     GROUP BY MI.item_id
@@ -1251,9 +1251,9 @@ LIMIT 10;
         T.table_number,
         SUM(MI.price * OI.quantity) AS total_order_sales
     FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-    JOIN Tables AS T ON O.table_id = T.table_id
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
+    JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     WHERE YEAR(O.order_time)=YEAR(CURDATE())
     GROUP BY O.order_id
@@ -1265,9 +1265,9 @@ LIMIT 10;
                 T.table_number,
                 SUM(MI.price * OI.quantity) AS total_order_sales
                 FROM Orders AS O
-                JOIN OrderItems AS OI ON O.order_id = OI.order_id
-                JOIN Tables AS T ON O.table_id = T.table_id
-                JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+                JOIN orderitems AS OI ON O.order_id = OI.order_id
+                JOIN tables AS T ON O.table_id = T.table_id
+                JOIN menuitems AS MI ON OI.item_id = MI.item_id
                 WHERE YEAR(O.order_time)=YEAR(CURDATE())
                 GROUP BY T.table_number
                 ORDER BY total_order_sales DESC
