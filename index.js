@@ -272,6 +272,7 @@ app.put("/managers", (req, res) => {
       res.send("order accepted successfully");
     } catch (err) {
       res.status(500).send(err);
+      console.log(err);
     }
   })
 })
