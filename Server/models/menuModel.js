@@ -10,7 +10,7 @@ const connection = mysql.createConnection({
 
 const menuModel = {
   getItems: (callback) => {
-    const display = "SELECT * FROM MenuItems";
+    const display = "SELECT * FROM menuitems";
     connection.query(display, (err, result) => {
       if (err) throw err;
       callback(result);
@@ -18,7 +18,7 @@ const menuModel = {
   },
   
   getCategoryItems: (category, callback) => {
-    const displayCategory = `SELECT * FROM MenuItems WHERE Subcategory = '${category}' OR Maincategory = '${category}' AND Availability = 1`;
+    const displayCategory = `SELECT * FROM menuitems WHERE Subcategory = '${category}' OR Maincategory = '${category}' AND Availability = 1`;
     connection.query(displayCategory, (err, result) => {
       if (err) {
         console.error("An error occurred while retrieving data", err);
@@ -30,7 +30,7 @@ const menuModel = {
   },
 
   getVegItems: (callback) => {
-    const veg = "SELECT * FROM MenuItems WHERE Vegonly = 1 AND Availability=1";
+    const veg = "SELECT * FROM menuitems WHERE Vegonly = 1 AND Availability=1";
     connection.query(veg, (err, result) => {
       try {
         if (err) throw err;
@@ -53,9 +53,9 @@ const menuModel = {
         OI.quantity,
         MI.name,
         MI.src
-      FROM Orders AS O
-      JOIN OrderItems AS OI ON O.order_id = OI.order_id
-      JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+      FROM orders AS O
+      JOIN orderitems AS OI ON O.order_id = OI.order_id
+      JOIN menuitems AS MI ON OI.item_id = MI.item_id
       WHERE O.table_id =${id} AND( O.status_id !=4 AND O.status_id!=5);
     `;
     connection.query(cartQuery, (err, result) => {
@@ -72,7 +72,7 @@ const menuModel = {
     if (search.length < 2) {
       callback([]);
     } else {
-      const displaySearch = "SELECT * FROM MenuItems WHERE name LIKE ?";
+      const displaySearch = "SELECT * FROM menuitems WHERE name LIKE ?";
       try {
         connection.query(displaySearch, `%${search}%`, (err, result) => {
           if (err) throw err;
@@ -87,7 +87,7 @@ const menuModel = {
 
   placeOrder: (id, obj, callback) => {
     connection.query(
-      `SELECT table_id FROM Tables WHERE table_number = ?`,
+      `SELECT table_id FROM tables WHERE table_number = ?`,
       id,
       (err, result) => {
         if (err) {
@@ -97,7 +97,7 @@ const menuModel = {
         const table_id = result[0].table_id;
 
         connection.query(
-          `INSERT INTO Orders (table_id, status_id) VALUES (?, ?)`,
+          `INSERT INTO orders (table_id, status_id) VALUES (?, ?)`,
           [table_id, 1],
           (err, orderResult) => {
             if (err) {
@@ -107,7 +107,7 @@ const menuModel = {
             const order_id = orderResult.insertId;
 
             const insertItemQuery =
-              'INSERT INTO OrderItems (order_id, item_id, quantity, special_instructions) VALUES (?, ?, ?, ?)';
+              'INSERT INTO orderitems (order_id, item_id, quantity, special_instructions) VALUES (?, ?, ?, ?)';
 
             obj.items.forEach((item) => {
               connection.query(
