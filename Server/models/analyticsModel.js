@@ -7,7 +7,7 @@ class AnalyticsModel {
       SELECT
         DATE(O.order_time) AS sale_date,
         SUM(MI.price * OI.quantity) AS daily_sales
-      FROM Orders AS O
+      FROM orders AS O
       JOIN OrderItems AS OI ON O.order_id = OI.order_id
       JOIN MenuItems AS MI ON OI.item_id = MI.item_id
       JOIN Tables AS T ON O.table_id = T.table_id
@@ -29,7 +29,7 @@ class AnalyticsModel {
         SUM(OI.quantity) AS total_quantity_sold
       FROM OrderItems AS OI
       JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-      JOIN Orders AS O ON O.order_id = OI.order_id
+      JOIN orders AS O ON O.order_id = OI.order_id
       JOIN Tables AS T ON O.table_id = T.table_id
       GROUP BY MI.item_id
       ORDER BY total_quantity_sold DESC
@@ -44,7 +44,7 @@ class AnalyticsModel {
         O.order_id,
         T.table_number,
         SUM(MI.price * OI.quantity) AS total_order_sales
-      FROM Orders AS O
+      FROM orders AS O
       JOIN OrderItems AS OI ON O.order_id = OI.order_id
       JOIN MenuItems AS MI ON OI.item_id = MI.item_id
       JOIN Tables AS T ON O.table_id = T.table_id
@@ -60,7 +60,7 @@ class AnalyticsModel {
       SELECT
         T.table_number,
         SUM(MI.price * OI.quantity) AS total_order_sales
-      FROM Orders AS O
+      FROM orders AS O
       JOIN OrderItems AS OI ON O.order_id = OI.order_id
       JOIN Tables AS T ON O.table_id = T.table_id
       JOIN MenuItems AS MI ON OI.item_id = MI.item_id
@@ -77,7 +77,7 @@ class AnalyticsModel {
         DATE(O.order_time) AS order_date,
         COUNT(OI.order_id) AS total_orders,
         SUM(MI.price * OI.quantity) AS total_price
-      FROM Orders AS O
+      FROM orders AS O
       JOIN OrderItems AS OI ON O.order_id = OI.order_id
       JOIN MenuItems AS MI ON OI.item_id = MI.item_id
       WHERE DATE(O.order_time) = CURDATE()
