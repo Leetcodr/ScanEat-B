@@ -53,7 +53,7 @@ const menuModel = {
         OI.quantity,
         MI.name,
         MI.src
-      FROM Orders AS O
+      FROM orders AS O
       JOIN OrderItems AS OI ON O.order_id = OI.order_id
       JOIN MenuItems AS MI ON OI.item_id = MI.item_id
       WHERE O.table_id =${id} AND( O.status_id !=4 AND O.status_id!=5);
@@ -97,7 +97,7 @@ const menuModel = {
         const table_id = result[0].table_id;
 
         connection.query(
-          `INSERT INTO Orders (table_id, status_id) VALUES (?, ?)`,
+          `INSERT INTO orders (table_id, status_id) VALUES (?, ?)`,
           [table_id, 1],
           (err, orderResult) => {
             if (err) {
