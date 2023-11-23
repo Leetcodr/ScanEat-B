@@ -90,7 +90,7 @@ app.get("/home/:id/abc/cart", (req, res) => {
       MI.name,
       MI.src
 
-    FROM Orders AS O
+    FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
     WHERE O.table_id =${id} AND( O.status_id !=4 AND O.status_id!=5);
@@ -148,7 +148,7 @@ app.post("/home/:id/abc/placeOrder", (req, res) => {
       const table_id = result[0].table_id; // Assuming it's a single result
 
       connection.query(
-        `INSERT INTO Orders (table_id, status_id) VALUES (?, ?)`,
+        `INSERT INTO orders (table_id, status_id) VALUES (?, ?)`,
         [table_id, 1],
         (err, orderResult) => {
           if (err) {
@@ -232,7 +232,7 @@ app.get('/managers', (req, res) => {
                   MI.price,
                   OI.quantity,
                   OS.status_name AS status
-                FROM Orders AS O 
+                FROM orders AS O 
                 JOIN tables AS T ON O.table_id = T.table_id
                 JOIN orderitems AS OI ON O.order_id = OI.order_id
                 JOIN menuitems AS MI ON OI.item_id = MI.item_id
@@ -397,7 +397,7 @@ app.post("/home/:id/:category/bill", (req, res) => {
   MI.price, 
   OI.quantity,
   (MI.price * OI.quantity) AS total_price
-FROM Orders AS O
+FROM orders AS O
 JOIN orderitems AS OI ON O.order_id = OI.order_id
 JOIN menuitems AS MI ON OI.item_id = MI.item_id
 WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
@@ -435,7 +435,7 @@ app.post("/manager/bill", (req, res) => {
   MI.price, 
   OI.quantity,
   (MI.price * OI.quantity) AS total_price
-FROM Orders AS O
+FROM orders AS O
 JOIN orderitems AS OI ON O.order_id = OI.order_id
 JOIN menuitems AS MI ON OI.item_id = MI.item_id
 WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
@@ -507,7 +507,7 @@ app.get("/manager/bill/:id", (req, res) => {
   MI.price,
   OI.quantity,
   (MI.price * OI.quantity) AS total_price
-FROM Orders AS O
+FROM orders AS O
 JOIN orderitems AS OI ON O.order_id = OI.order_id
 JOIN menuitems AS MI ON OI.item_id = MI.item_id
 WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
@@ -535,7 +535,7 @@ app.get("/chef", (req, res) => {
   OI.special_instructions,
   O.table_id AS table_number
 FROM orderitems AS OI
-JOIN Orders AS O ON OI.order_id = O.order_id
+JOIN orders AS O ON OI.order_id = O.order_id
 JOIN menuitems AS MI ON OI.item_id = MI.item_id
 WHERE O.status_id=2;
 `;
@@ -670,7 +670,7 @@ app.post("/manager/analytics", (req, res) => {
     SELECT
         DATE(O.order_time) AS sale_date,
         SUM(MI.price * OI.quantity) AS daily_sales
-    FROM Orders AS O
+    FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
     JOIN tables AS T ON O.table_id = T.table_id
@@ -689,7 +689,7 @@ app.post("/manager/analytics", (req, res) => {
         SUM(OI.quantity) AS total_quantity_sold
     FROM orderitems AS OI
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
-    JOIN Orders AS O ON O.order_id = OI.order_id
+    JOIN orders AS O ON O.order_id = OI.order_id
     JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     GROUP BY MI.item_id
@@ -703,7 +703,7 @@ app.post("/manager/analytics", (req, res) => {
         O.order_id,
         T.table_number,
         SUM(MI.price * OI.quantity) AS total_order_sales
-    FROM Orders AS O
+    FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
     JOIN tables AS T ON O.table_id = T.table_id
@@ -716,7 +716,7 @@ app.post("/manager/analytics", (req, res) => {
     const mostOrderedTable = `SELECT
                 T.table_number,
                 SUM(MI.price * OI.quantity) AS total_order_sales
-                FROM Orders AS O
+                FROM orders AS O
                 JOIN orderitems AS OI ON O.order_id = OI.order_id
                 JOIN tables AS T ON O.table_id = T.table_id
                 JOIN menuitems AS MI ON OI.item_id = MI.item_id
@@ -766,7 +766,7 @@ app.post("/manager/analytics", (req, res) => {
   SELECT
       DATE(O.order_time) AS sale_date,
       SUM(MI.price * OI.quantity) AS daily_sales
-  FROM Orders AS O
+  FROM orders AS O
   JOIN orderitems AS OI ON O.order_id = OI.order_id
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN tables AS T ON O.table_id = T.table_id
@@ -787,7 +787,7 @@ SELECT
     SUM(OI.quantity) AS total_quantity_sold
 FROM orderitems AS OI
 JOIN menuitems AS MI ON OI.item_id = MI.item_id
-JOIN Orders AS O ON O.order_id = OI.order_id
+JOIN orders AS O ON O.order_id = OI.order_id
 JOIN tables AS T ON O.table_id = T.table_id
 WHERE DATE(O.order_time) = CURDATE()  
 GROUP BY MI.item_id
@@ -802,7 +802,7 @@ LIMIT 10;
       O.order_id,
       T.table_number,
       SUM(MI.price * OI.quantity) AS total_order_sales
-  FROM Orders AS O
+  FROM orders AS O
   JOIN orderitems AS OI ON O.order_id = OI.order_id
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN tables AS T ON O.table_id = T.table_id
@@ -816,7 +816,7 @@ LIMIT 10;
     const mostOrderedTable = `SELECT
               T.table_number,
               SUM(MI.price * OI.quantity) AS total_order_sales
-              FROM Orders AS O
+              FROM orders AS O
               JOIN orderitems AS OI ON O.order_id = OI.order_id
               JOIN tables AS T ON O.table_id = T.table_id
               JOIN menuitems AS MI ON OI.item_id = MI.item_id
@@ -830,7 +830,7 @@ LIMIT 10;
                   DATE(O.order_time) AS order_date,
                   COUNT(OI.order_id) AS total_orders,
                   SUM(MI.price * OI.quantity) AS total_price
-                  FROM Orders AS O
+                  FROM orders AS O
                   JOIN orderitems AS OI ON O.order_id = OI.order_id
                   JOIN menuitems AS MI ON OI.item_id = MI.item_id
                   WHERE DATE(O.order_time) = CURDATE()  
@@ -913,7 +913,7 @@ LIMIT 10;
   SELECT
       DATE(O.order_time) AS sale_date,
       SUM(MI.price * OI.quantity) AS daily_sales
-  FROM Orders AS O
+  FROM orders AS O
   JOIN orderitems AS OI ON O.order_id = OI.order_id
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN tables AS T ON O.table_id = T.table_id
@@ -934,7 +934,7 @@ LIMIT 10;
       SUM(OI.quantity) AS total_quantity_sold
   FROM orderitems AS OI
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
-  JOIN Orders AS O ON O.order_id = OI.order_id
+  JOIN orders AS O ON O.order_id = OI.order_id
   JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
@@ -950,7 +950,7 @@ LIMIT 10;
       O.order_id,
       T.table_number,
       SUM(MI.price * OI.quantity) AS total_order_sales
-  FROM Orders AS O
+  FROM orders AS O
   JOIN orderitems AS OI ON O.order_id = OI.order_id
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN tables AS T ON O.table_id = T.table_id
@@ -965,7 +965,7 @@ LIMIT 10;
     const mostOrderedTable = `SELECT
               T.table_number,
               SUM(MI.price * OI.quantity) AS total_order_sales
-              FROM Orders AS O
+              FROM orders AS O
               JOIN orderitems AS OI ON O.order_id = OI.order_id
               JOIN tables AS T ON O.table_id = T.table_id
               JOIN menuitems AS MI ON OI.item_id = MI.item_id
@@ -980,7 +980,7 @@ LIMIT 10;
         WEEK(O.order_time) AS order_week,
         COUNT(OI.order_id) AS total_orders,
         SUM(MI.price * OI.quantity) AS total_price
-        FROM Orders AS O
+        FROM orders AS O
         JOIN orderitems AS OI ON O.order_id = OI.order_id
         JOIN menuitems AS MI ON OI.item_id = MI.item_id
         WHERE WEEK(O.order_time) = WEEK(CURDATE())  
@@ -1064,7 +1064,7 @@ LIMIT 10;
   SELECT
       DATE(O.order_time) AS sale_date,
       SUM(MI.price * OI.quantity) AS daily_sales
-  FROM Orders AS O
+  FROM orders AS O
   JOIN orderitems AS OI ON O.order_id = OI.order_id
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN tables AS T ON O.table_id = T.table_id
@@ -1085,7 +1085,7 @@ LIMIT 10;
       SUM(OI.quantity) AS total_quantity_sold
   FROM orderitems AS OI
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
-  JOIN Orders AS O ON O.order_id = OI.order_id
+  JOIN orders AS O ON O.order_id = OI.order_id
   JOIN tables AS T ON O.table_id = T.table_id
   -- WHERE T.table_number = ?
   WHERE YEAR(O.order_time)=YEAR(CURDATE()) AND
@@ -1101,7 +1101,7 @@ LIMIT 10;
       O.order_id,
       T.table_number,
       SUM(MI.price * OI.quantity) AS total_order_sales
-  FROM Orders AS O
+  FROM orders AS O
   JOIN orderitems AS OI ON O.order_id = OI.order_id
   JOIN menuitems AS MI ON OI.item_id = MI.item_id
   JOIN tables AS T ON O.table_id = T.table_id
@@ -1116,7 +1116,7 @@ LIMIT 10;
     const mostOrderedTable = `SELECT
               T.table_number,
               SUM(MI.price * OI.quantity) AS total_order_sales
-              FROM Orders AS O
+              FROM orders AS O
               JOIN orderitems AS OI ON O.order_id = OI.order_id
               JOIN tables AS T ON O.table_id = T.table_id
               JOIN menuitems AS MI ON OI.item_id = MI.item_id
@@ -1131,7 +1131,7 @@ LIMIT 10;
                         MONTH(O.order_time) AS order_month,
                         COUNT(OI.order_id) AS total_orders,
                         SUM(MI.price * OI.quantity) AS total_price
-                        FROM Orders AS O
+                        FROM orders AS O
                         JOIN orderitems AS OI ON O.order_id = OI.order_id
                         JOIN menuitems AS MI ON OI.item_id = MI.item_id
                         WHERE MONTH(O.order_time) =MONTH(CURDATE())  
@@ -1215,7 +1215,7 @@ LIMIT 10;
     SELECT
         DATE(O.order_time) AS sale_date,
         SUM(MI.price * OI.quantity) AS daily_sales
-    FROM Orders AS O
+    FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
     JOIN tables AS T ON O.table_id = T.table_id
@@ -1235,7 +1235,7 @@ LIMIT 10;
         SUM(OI.quantity) AS total_quantity_sold
     FROM orderitems AS OI
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
-    JOIN Orders AS O ON O.order_id = OI.order_id
+    JOIN orders AS O ON O.order_id = OI.order_id
     JOIN tables AS T ON O.table_id = T.table_id
     -- WHERE T.table_number = ?
     WHERE YEAR(O.order_time)=YEAR(CURDATE())
@@ -1250,7 +1250,7 @@ LIMIT 10;
         O.order_id,
         T.table_number,
         SUM(MI.price * OI.quantity) AS total_order_sales
-    FROM Orders AS O
+    FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
     JOIN tables AS T ON O.table_id = T.table_id
@@ -1264,7 +1264,7 @@ LIMIT 10;
     const mostOrderedTable = `SELECT
                 T.table_number,
                 SUM(MI.price * OI.quantity) AS total_order_sales
-                FROM Orders AS O
+                FROM orders AS O
                 JOIN orderitems AS OI ON O.order_id = OI.order_id
                 JOIN tables AS T ON O.table_id = T.table_id
                 JOIN menuitems AS MI ON OI.item_id = MI.item_id
