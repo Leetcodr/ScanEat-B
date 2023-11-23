@@ -38,11 +38,11 @@ const managerModel = {
       MI.price,
       OI.quantity,
       OS.status_name AS status
-    FROM Orders AS O 
+    FROM orders AS O 
     JOIN Tables AS T ON O.table_id = T.table_id
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
-    JOIN OrderStatuses AS OS ON O.status_id = OS.status_id
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
+    JOIN orderstatuses AS OS ON O.status_id = OS.status_id
     WHERE O.status_id !=5`;
 
     connection.query(Manquery, (err, result) => {
@@ -89,7 +89,7 @@ const managerModel = {
 
   addItem: (itemData, callback) => {
     const addquery = `INSERT INTO 
-      MenuItems (item_id, name, description, price, Maincategory, src, Subcategory, Recommended, Availability, Vegonly)
+      menuitems (item_id, name, description, price, Maincategory, src, Subcategory, Recommended, Availability, Vegonly)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     connection.query(addquery, [itemData.item_id, itemData.name, itemData.description, itemData.price, itemData.Maincategory, itemData.src, itemData.Subcategory, itemData.Recommended, 1, itemData.vegonly], (err, result) => {
@@ -102,7 +102,7 @@ const managerModel = {
   },
 
   deleteItem: (id, callback) => {
-    const delquery = `DELETE FROM MenuItems WHERE item_id=${id}`;
+    const delquery = `DELETE FROM menuitems WHERE item_id=${id}`;
 
     connection.query(delquery, (err, result) => {
       if (err) {
@@ -135,9 +135,9 @@ const managerModel = {
       MI.price,
       OI.quantity,
       (MI.price * OI.quantity) AS total_price
-    FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+    FROM orders AS O
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
     WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
     AND O.status_id = 6;
   `;
@@ -166,9 +166,9 @@ const managerModel = {
       MI.price,
       OI.quantity,
       (MI.price * OI.quantity) AS total_price
-    FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+    FROM orders AS O
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
     WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
     AND O.status_id = 3;
   `;
@@ -190,9 +190,9 @@ const managerModel = {
       MI.price,
       OI.quantity,
       (MI.price * OI.quantity) AS total_price
-    FROM Orders AS O
-    JOIN OrderItems AS OI ON O.order_id = OI.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+    FROM orders AS O
+    JOIN orderitems AS OI ON O.order_id = OI.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
     WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
     AND O.status_id = 3;
   `;
@@ -214,9 +214,9 @@ const managerModel = {
       OI.quantity,
       OI.special_instructions,
       O.table_id AS table_number
-    FROM OrderItems AS OI
-    JOIN Orders AS O ON OI.order_id = O.order_id
-    JOIN MenuItems AS MI ON OI.item_id = MI.item_id
+    FROM orderitems AS OI
+    JOIN orders AS O ON OI.order_id = O.order_id
+    JOIN menuitems AS MI ON OI.item_id = MI.item_id
     WHERE O.status_id=2;
   `;
 
