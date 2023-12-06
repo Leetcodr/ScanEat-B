@@ -39,7 +39,7 @@ const managerModel = {
       OI.quantity,
       OS.status_name AS status
     FROM orders AS O 
-    JOIN Tables AS T ON O.table_id = T.table_id
+    JOIN tables AS T ON O.table_id = T.table_id
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
     JOIN orderstatuses AS OS ON O.status_id = OS.status_id
@@ -138,7 +138,7 @@ const managerModel = {
     FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
-    WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
+    WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
     AND O.status_id = 6;
   `;
 
@@ -169,7 +169,7 @@ const managerModel = {
     FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
-    WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
+    WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
     AND O.status_id = 3;
   `;
 
@@ -193,7 +193,7 @@ const managerModel = {
     FROM orders AS O
     JOIN orderitems AS OI ON O.order_id = OI.order_id
     JOIN menuitems AS MI ON OI.item_id = MI.item_id
-    WHERE O.table_id = (SELECT table_id FROM Tables WHERE table_number =${id}) 
+    WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
     AND O.status_id = 3;
   `;
 
