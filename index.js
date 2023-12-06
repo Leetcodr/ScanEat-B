@@ -366,7 +366,7 @@ app.get("/home/:id/:category/bill", (req, res) => {
   //   MI.price, 
   //   OI.quantity,
   //   (MI.price * OI.quantity) AS total_price
-  // FROM Orders AS O
+  // FROM orders AS O
   // JOIN orderitems AS OI ON O.order_id = OI.order_id
   // JOIN menuitems AS MI ON OI.item_id = MI.item_id
   // WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
@@ -462,13 +462,13 @@ AND O.status_id = 3;
 //   -- OI.special_instructions,
 //   O.table_id AS table_number
 // FROM orderitems AS OI
-// JOIN Orders AS O ON OI.order_id = O.order_id
+// JOIN orders AS O ON OI.order_id = O.order_id
 // JOIN menuitems AS MI ON OI.item_id = MI.item_id
 // WHERE O.status_id=2;
 // `;
 //   const instquery = `SELECT OI.order_id, OI.special_instructions
 // FROM orderitems AS OI
-// JOIN Orders AS O ON OI.order_id = O.order_id
+// JOIN orders AS O ON OI.order_id = O.order_id
 // WHERE O.status_id = 2
 // GROUP BY O.order_id, OI.special_instructions;
 // `;
