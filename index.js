@@ -7,6 +7,10 @@ const bcrypt = require('bcrypt');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cors());
+
+
+const server = app.listen(port, (req, res) => { console.log("listening to the port ", port);
+})
 const connection = mysql.createConnection({
   host: 'bqkgkv6hqd6pzn2et1ij-mysql.services.clever-cloud.com',
   user: 'ugukpfkuhgbid8m4',
@@ -14,16 +18,21 @@ const connection = mysql.createConnection({
   password: "W5AjHiMSdHZr2fYAC1P8"
 });
 
+const io = require('socket.io')(server,{
+  pingTimeout:60000,
+  cors:{
+    origin:'*'
+  }
+})
+
 
 
 let abc = 0;
 let obj;
 //<-----------------------------------------------------listen ----------------------------------------------->
-app.listen(port, (req, res) => {
 
-  console.log("listening to the port ", port);
-})
-
+io.on("connection",(socket)=>{
+  console.log("user is connected");
 
 //<----------------------------------------------------home page----------------------------------------------------->
 
@@ -360,32 +369,16 @@ app.get("/home/:id/:category/bill", (req, res) => {
   const id = req.params;
   abc = id;
 
-  //   const bill = `SELECT
-  //   OI.item_id,
-  //   MI.name AS item_name,
-  //   MI.price, 
-  //   OI.quantity,
-  //   (MI.price * OI.quantity) AS total_price
-  // FROM orders AS O
-  // JOIN orderitems AS OI ON O.order_id = OI.order_id
-  // JOIN menuitems AS MI ON OI.item_id = MI.item_id
-  // WHERE O.table_id = (SELECT table_id FROM tables WHERE table_number =${id}) 
-  // AND O.status_id = 6;
-  // `
-
-  //   connection.query(bill, (err, result) => {
-  //     try {
-  //       if (err) throw err;
-  //       res.status(200).send(result)
-
-  //     } catch (err) {
-  //       res.status(500).send("an error occured");
-  //       console.log(err);
-  //     }
-  //   })
 
 })
 
+socket.on("sendNotification",(data)=>
+{
+  let {table_id}=data;
+  console.log(data);
+
+  io.emit("generateBill",data);
+})
 
 //<-----------------------------------------------------BILL GENERATED----------------------------------------------------->
 app.post("/home/:id/:category/bill", (req, res) => {
@@ -1314,4 +1307,51 @@ LIMIT 10;
     res.status(500).send("SEND VALID REQUEST");
   }
 
+});
+
+/////////////////////////Excel response///////////////////////////////////
+
+app.get("/exportAllOrders", async (req, res) => {
+  try {
+    // Replace with your SQL query to get all order details
+    const query = `SELECT * FROM orders
+    WHERE MONTH(order_time) =MONTH(CURDATE()) `;
+
+    const orders = await executeQuery(query);
+
+    // Create Excel workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("AllOrders");
+
+    // Add headers to the worksheet
+    const headers = Object.keys(orders[0]);
+    worksheet.addRow(headers);
+
+    // Add data to the worksheet
+    orders.forEach(order => {
+      const row = headers.map(header => order[header]);
+      worksheet.addRow(row);
+    });
+
+    // Set response headers for Excel file
+    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    res.setHeader("Content-Disposition", "attachment; filename=all_orders_report.xlsx");
+
+    // Send the Excel file to the client
+    await workbook.xlsx.write(res);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+function executeQuery(query, params) {
+  return new Promise((resolve, reject) => {
+    connection.query(query, params, (err, result) => {
+      if (err) reject(err);
+      resolve(result);
+    });
+  });
+}
 });
