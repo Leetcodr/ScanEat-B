@@ -4,6 +4,8 @@
 
 📊 Not just that, our project includes an analytics dashboard for managers, providing invaluable insights and empowering informed decision-making for the restaurant.
 
+[Visit Now!](https://scaneat.onrender.com/)
+
 ## ScreenShots
 
 ![Image 1](/assets/images/dashboard.png)
